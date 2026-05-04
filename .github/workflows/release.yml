@@ -80,7 +80,7 @@ jobs:
       # download — which would only work AFTER the asset is published, defeating
       # the purpose of a pre-publish gate.
       - name: Upload installer (workflow artifact for smoke gate)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-windows-installer
           path: installer\windows\Output\BoxCutter-Setup-${{ env.VERSION }}.exe
@@ -94,7 +94,7 @@ jobs:
 
       # Unpacked PyInstaller bundle for smoke gate (skip Inno Setup install)
       - name: Upload unpacked Windows bundle (workflow artifact for smoke)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-windows-bundle
           path: dist/BoxCutter
@@ -193,7 +193,7 @@ jobs:
           mv dist/*.dmg dist/boxcutter-mac.dmg
 
       - name: Upload DMG (workflow artifact for smoke gate)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-macos-dmg
           path: dist/boxcutter-mac.dmg
@@ -212,7 +212,7 @@ jobs:
 
       # Unpacked .app bundle for smoke gate (skip DMG mount path)
       - name: Upload unpacked .app bundle (workflow artifact for smoke)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-macos-app
           path: dist/BoxCutter.app
