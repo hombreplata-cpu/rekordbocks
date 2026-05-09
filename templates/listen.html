@@ -252,131 +252,6 @@
       transition: width 0.5s linear;
     }
 
-    /* ── Full player sheet ───────────────────────────────────────── */
-    #player-sheet {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      transform: translateY(100%);
-      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-      z-index: 100;
-    }
-    #player-sheet.open { transform: translateY(0); }
-
-    .sheet-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      padding-top: calc(16px + env(safe-area-inset-top, 0px));
-      flex-shrink: 0;
-    }
-
-    .sheet-close {
-      background: none;
-      border: none;
-      color: var(--dim);
-      font-size: 24px;
-      cursor: pointer;
-      padding: 4px;
-      line-height: 1;
-    }
-
-    .sheet-playlist {
-      font-size: 12px;
-      color: var(--dim);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .sheet-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 12px 24px 0;
-      gap: 0;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .sheet-art {
-      width: min(160px, 42vw);
-      height: min(160px, 42vw);
-      background: var(--panel);
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 52px;
-      flex-shrink: 0;
-      margin-bottom: 16px;
-    }
-
-    .sheet-title {
-      font-size: 20px;
-      font-weight: 700;
-      text-align: center;
-      width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 6px;
-    }
-
-    .sheet-artist {
-      font-size: 15px;
-      color: var(--dim);
-      text-align: center;
-      margin-bottom: 6px;
-    }
-
-    .sheet-tags {
-      font-size: 13px;
-      color: var(--dim);
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .sheet-tag {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-size: 12px;
-    }
-
-    .sheet-seek {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 24px;
-    }
-
-    /* ── Waveform canvas ─────────────────────────────────────── */
-    .sheet-waveform {
-      width: 100%;
-      margin-bottom: 8px;
-    }
-
-    #waveform-canvas {
-      width: 100%;
-      height: 80px;
-      cursor: pointer;
-      display: block;
-      border-radius: 4px;
-      touch-action: none;
-      background: var(--bg);
-    }
-
     /* ── Cue add button ──────────────────────────────────────── */
     .cue-add-btn {
       background: none;
@@ -391,55 +266,6 @@
       transition: color 0.1s, border-color 0.1s;
     }
     .cue-add-btn:active { color: var(--green); border-color: var(--green); }
-
-    .seek-times {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      color: var(--dim);
-    }
-
-    .sheet-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      flex-shrink: 0;
-      padding-bottom: calc(16px + var(--safe-b));
-    }
-
-    .ctrl-btn {
-      background: none;
-      border: none;
-      color: var(--text);
-      cursor: pointer;
-      padding: 8px;
-      line-height: 1;
-      transition: color 0.1s, transform 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .ctrl-btn:active { transform: scale(0.88); }
-    .ctrl-btn.skip { font-size: 28px; color: var(--dim); }
-    .ctrl-btn.skip:active { color: var(--text); }
-
-    .play-btn {
-      width: 64px;
-      height: 64px;
-      background: var(--accent);
-      border-radius: 50%;
-      border: none;
-      color: var(--bg);
-      font-size: 26px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.1s, transform 0.1s;
-      flex-shrink: 0;
-    }
-    .play-btn:active { background: #0097a7; transform: scale(0.93); }
 
     /* ── Track action sheet ─────────────────────────────────────── */
     #action-sheet-backdrop {
@@ -783,7 +609,7 @@
   </div>
 
   <!-- Mini-player bar -->
-  <div id="mini-player" onclick="openSheet()">
+  <div id="mini-player" onclick="openActionSheetForCurrent()">
     <div class="mini-row">
       <div class="mini-art">♪</div>
       <div class="mini-info">
@@ -827,6 +653,7 @@
       <button class="as-ctrl-btn" onclick="prevTrack()">⏮</button>
       <button class="as-play-btn" id="as-play-btn" onclick="togglePlay()">▶</button>
       <button class="as-ctrl-btn" onclick="nextTrack()">⏭</button>
+      <button class="cue-add-btn" onclick="addCue()" title="Add cue at current time">+ Cue</button>
     </div>
 
     <div class="as-section-label">Rate</div>
@@ -843,36 +670,6 @@
 
     <div class="as-section-label">Add to Playlist</div>
     <div id="as-playlists-list"><div class="as-loading">Loading…</div></div>
-  </div>
-</div>
-
-<!-- Full-screen player sheet -->
-<div id="player-sheet">
-  <div class="sheet-header">
-    <button class="sheet-close" onclick="closeSheet()">⌄</button>
-    <div class="sheet-playlist" id="sheet-playlist-name">—</div>
-    <div style="width:32px"></div>
-  </div>
-  <div class="sheet-body">
-    <div class="sheet-art">♪</div>
-    <div class="sheet-title" id="sheet-title">—</div>
-    <div class="sheet-artist" id="sheet-artist">—</div>
-    <div class="sheet-tags" id="sheet-tags"></div>
-    <div class="sheet-waveform">
-      <canvas id="waveform-canvas"
-              onclick="waveformSeek(event)"
-              ontouchstart="waveformSeek(event)"></canvas>
-      <div class="seek-times">
-        <span id="time-cur">0:00</span>
-        <span id="time-rem">—</span>
-      </div>
-    </div>
-    <div class="sheet-controls">
-      <button class="ctrl-btn skip" onclick="prevTrack()">⏮</button>
-      <button class="play-btn" id="sheet-play-btn" onclick="togglePlay()">▶</button>
-      <button class="ctrl-btn skip" onclick="nextTrack()">⏭</button>
-      <button class="cue-add-btn" onclick="addCue()" title="Add cue at current time">+ Cue</button>
-    </div>
   </div>
 </div>
 
@@ -1097,7 +894,6 @@ function _enterTracksView(name) {
   document.getElementById('shuffle-btn').style.display = '';
   document.getElementById('logout-btn').style.display = 'none';
   document.getElementById('content').innerHTML = '<div class="state-msg"><div class="spinner"></div>Loading tracks…</div>';
-  document.getElementById('sheet-playlist-name').textContent = name;
 }
 
 async function openPlaylist(pid, name) {
@@ -1230,12 +1026,6 @@ function updateNowPlayingUI(t) {
 
   document.getElementById('mini-title').textContent  = title;
   document.getElementById('mini-artist').textContent = artist || (bpm || key);
-
-  document.getElementById('sheet-title').textContent  = title;
-  document.getElementById('sheet-artist').textContent = artist;
-
-  const tags = [bpm, key].filter(Boolean);
-  document.getElementById('sheet-tags').innerHTML = tags.map(x => `<span class="sheet-tag">${esc(x)}</span>`).join('');
 }
 
 function togglePlay() {
@@ -1288,15 +1078,13 @@ function toggleShuffle() {
 
 // ── Audio event listeners ──────────────────────────────────────────────────
 audio.addEventListener('play', () => {
-  document.getElementById('mini-play-btn').textContent  = '⏸';
-  document.getElementById('sheet-play-btn').textContent = '⏸';
-  document.getElementById('as-play-btn').textContent    = '⏸';
+  document.getElementById('mini-play-btn').textContent = '⏸';
+  document.getElementById('as-play-btn').textContent   = '⏸';
 });
 
 audio.addEventListener('pause', () => {
-  document.getElementById('mini-play-btn').textContent  = '▶';
-  document.getElementById('sheet-play-btn').textContent = '▶';
-  document.getElementById('as-play-btn').textContent    = '▶';
+  document.getElementById('mini-play-btn').textContent = '▶';
+  document.getElementById('as-play-btn').textContent   = '▶';
 });
 
 audio.addEventListener('ended', () => nextTrack());
@@ -1323,8 +1111,6 @@ audio.addEventListener('timeupdate', () => {
 
   const curStr = fmtDur(Math.floor(cur));
   const remStr = dur ? '-' + fmtDur(Math.max(0, Math.floor(dur - cur))) : '—';
-  document.getElementById('time-cur').textContent = curStr;
-  document.getElementById('time-rem').textContent = remStr;
   document.getElementById('as-time-cur').textContent = curStr;
   document.getElementById('as-time-rem').textContent = remStr;
 
@@ -1409,18 +1195,7 @@ function _drawWaveformToCanvas(canvas) {
 }
 
 function drawWaveform() {
-  _drawWaveformToCanvas(document.getElementById('waveform-canvas'));
   _drawWaveformToCanvas(document.getElementById('as-waveform-canvas'));
-}
-
-function resizeWaveformCanvas() {
-  const canvas = document.getElementById('waveform-canvas');
-  if (!canvas) return;
-  const dpr = window.devicePixelRatio || 1;
-  const w   = canvas.offsetWidth || 300;
-  canvas.width  = w * dpr;
-  canvas.height = 80 * dpr;
-  drawWaveform();
 }
 
 function resizeActionSheetWaveform() {
@@ -1507,29 +1282,16 @@ async function addCue() {
   } catch { /* keep as session cue */ }
 }
 
-function waveformSeek(e) {
-  e.preventDefault();
-  const canvas  = document.getElementById('waveform-canvas');
-  const rect    = canvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const pct     = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-  if (audio.duration) audio.currentTime = pct * audio.duration;
-}
-
 window.addEventListener('resize', () => {
-  if (document.getElementById('player-sheet').classList.contains('open')) {
-    resizeWaveformCanvas();
+  if (document.getElementById('action-sheet').classList.contains('open')) {
+    resizeActionSheetWaveform();
   }
 });
 
-// ── Player sheet ───────────────────────────────────────────────────────────
-function openSheet() {
-  document.getElementById('player-sheet').classList.add('open');
-  setTimeout(resizeWaveformCanvas, 50);
-}
-
-function closeSheet() {
-  document.getElementById('player-sheet').classList.remove('open');
+// Reopen the action sheet for the currently-playing track without restarting it.
+function openActionSheetForCurrent() {
+  if (trackIdx < 0) return;
+  openActionSheet(trackIdx);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1555,6 +1317,35 @@ function showError(msg) {
   document.getElementById('content').innerHTML = `<div class="state-msg">${msg}</div>`;
 }
 
+// Brief in-app toast for transient failures (write rejections, etc.).
+let _toastTimer = null;
+function showToast(msg) {
+  let t = document.getElementById('bc-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'bc-toast';
+    t.style.cssText =
+      'position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));' +
+      'transform:translateX(-50%);max-width:88vw;padding:10px 16px;border-radius:8px;' +
+      'background:#2e1a0e;border:1px solid var(--red,#f85149);color:#ffb4ab;' +
+      'font-size:13px;z-index:9999;opacity:0;transition:opacity 0.2s;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
+}
+
+// Parse a server error message from a non-2xx fetch Response.
+async function _serverErr(resp, fallback) {
+  try {
+    const j = await resp.json();
+    if (j && j.error) return String(j.error);
+  } catch {}
+  return fallback || `Request failed (${resp.status})`;
+}
+
 // ── Media Session API (lock screen controls on iOS 16+) ───────────────────
 audio.addEventListener('play', updateMediaSession);
 
@@ -1576,7 +1367,6 @@ function updateMediaSession() {
 // ── Action sheet ───────────────────────────────────────────────────────────
 let actionTrackIdx = -1;
 let allMyTags      = [];   // [{id, name, parent_id, attribute}]
-let allPlaylists   = [];   // flattened [{id, name}] from tree
 let trackTags      = [];   // [{assignment_id, tag_id}]
 let trackPlaylists = [];   // [{playlist_id}]
 let trackRating    = 0;    // 0-5 stars
@@ -1585,14 +1375,6 @@ function ratingToStars(rating) {
   const r = Number(rating);
   if (!r || r <= 0) return 0;
   return Math.min(5, Math.max(0, Math.round(r)));
-}
-
-function flattenPlaylists(nodes, out = []) {
-  for (const n of nodes) {
-    if (n.type === 'folder') flattenPlaylists(n.children || [], out);
-    else out.push({ id: String(n.id), name: n.name });
-  }
-  return out;
 }
 
 async function openActionSheet(idx) {
@@ -1605,8 +1387,11 @@ async function openActionSheet(idx) {
   document.getElementById('action-sheet').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Start playback for this track
-  playTrack(idx);
+  // Start playback if this isn't already the playing track (avoids restart
+  // when reopening the sheet from the mini-player).
+  if (idx !== trackIdx) {
+    playTrack(idx);
+  }
 
   // Size action sheet canvas after it's painted
   setTimeout(resizeActionSheetWaveform, 50);
@@ -1629,11 +1414,6 @@ async function openActionSheet(idx) {
       const r = await fetch('/api/mytags');
       allMyTags = (await r.json()) || [];
     } catch { allMyTags = []; }
-  }
-
-  // Flatten playlists from already-loaded tree (cached)
-  if (!allPlaylists.length) {
-    allPlaylists = flattenPlaylists(tree);
   }
 
   // Fetch track's current tags and playlists in parallel
@@ -1667,6 +1447,7 @@ async function setStar(star) {
   if (!checkEditAllowed()) return;
   const t = tracks[actionTrackIdx];
   if (!t) return;
+  const prevRating = trackRating;
   const newRating = (star === trackRating) ? 0 : star;  // tap same star to clear
   renderStars(newRating);
   trackRating = newRating;
@@ -1677,10 +1458,18 @@ async function setStar(star) {
       body: JSON.stringify({rating: newRating}),
     });
     if (r.ok) {
-      // Update in-memory track so reopening the action sheet shows current rating
       tracks[actionTrackIdx].rating = newRating;
+      return;
     }
-  } catch { /* silent — UI already updated */ }
+    // Revert on failure and surface server error
+    trackRating = prevRating;
+    renderStars(prevRating);
+    showToast(await _serverErr(r, 'Could not save rating'));
+  } catch {
+    trackRating = prevRating;
+    renderStars(prevRating);
+    showToast('Network error — rating not saved');
+  }
 }
 
 // Tags
@@ -1767,12 +1556,22 @@ async function toggleTag(tagId, tagName, assignmentId) {
   if (!t) return;
   const isAssigned = trackTags.some(a => String(a.tag_id) === String(tagId));
   if (isAssigned && assignmentId) {
-    // Remove
+    // Remove (optimistic; revert on failure)
+    const removed = trackTags.find(a => String(a.tag_id) === String(tagId));
     trackTags = trackTags.filter(a => String(a.tag_id) !== String(tagId));
     renderTagsList();
     try {
-      await fetch(`/api/tracks/${t.id}/mytags/${assignmentId}`, {method: 'DELETE'});
-    } catch { /* silent */ }
+      const r = await fetch(`/api/tracks/${t.id}/mytags/${assignmentId}`, {method: 'DELETE'});
+      if (!r.ok) {
+        if (removed) trackTags.push(removed);
+        renderTagsList();
+        showToast(await _serverErr(r, 'Could not remove tag'));
+      }
+    } catch {
+      if (removed) trackTags.push(removed);
+      renderTagsList();
+      showToast('Network error — tag not removed');
+    }
   } else if (!isAssigned) {
     // Add
     try {
@@ -1781,31 +1580,71 @@ async function toggleTag(tagId, tagName, assignmentId) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({mytag_id: tagId}),
       });
+      if (!r.ok) {
+        showToast(await _serverErr(r, 'Could not add tag'));
+        return;
+      }
       const data = await r.json();
-      if (data.ok) {
+      if (data && data.ok) {
         trackTags.push({assignment_id: data.assignment_id, tag_id: tagId, tag_name: tagName});
         renderTagsList();
       }
-    } catch { /* silent */ }
+    } catch {
+      showToast('Network error — tag not added');
+    }
   }
 }
 
-// Playlists
+// Playlists — hierarchical, mirrors the tag UX (collapsible folder groups).
+const LISTEN_PLAYLISTS_COLLAPSED_KEY = 'bcListenPlaylistsCollapsed';
+function loadCollapsedFolders() {
+  try { return new Set(JSON.parse(localStorage.getItem(LISTEN_PLAYLISTS_COLLAPSED_KEY)) || []); }
+  catch { return new Set(); }
+}
+function saveCollapsedFolders(set) {
+  try { localStorage.setItem(LISTEN_PLAYLISTS_COLLAPSED_KEY, JSON.stringify([...set])); } catch {}
+}
+function togglePlaylistFolder(folderId) {
+  const collapsed = loadCollapsedFolders();
+  const key = String(folderId);
+  if (collapsed.has(key)) collapsed.delete(key);
+  else collapsed.add(key);
+  saveCollapsedFolders(collapsed);
+  const header = document.querySelector(`[data-pl-folder-id="${key}"]`);
+  if (header) header.classList.toggle('collapsed');
+}
+
+function _renderPlaylistNodes(nodes, inIds, collapsed, depth) {
+  let html = '';
+  for (const n of nodes) {
+    if (n.type === 'folder') {
+      const isCollapsed = collapsed.has(String(n.id));
+      html += `<div class="as-tag-cat${isCollapsed ? ' collapsed' : ''}" data-pl-folder-id="${esc(n.id)}" onclick="togglePlaylistFolder('${esc(n.id)}')" style="padding-left:${20 + depth * 12}px">
+        <span class="chev">▼</span><span>${esc(n.name)}</span>
+      </div>`;
+      html += '<div class="as-tag-children">';
+      html += _renderPlaylistNodes(n.children || [], inIds, collapsed, depth + 1);
+      html += '</div>';
+    } else {
+      const checked = inIds.has(String(n.id));
+      html += `<div class="as-row${checked ? ' checked' : ''}" onclick="togglePlaylist('${esc(n.id)}','${esc(n.name)}')" style="padding-left:${20 + depth * 12}px">
+        <div class="as-row-name">${esc(n.name)}</div>
+        <div class="as-row-check">${checked ? '✓' : ''}</div>
+      </div>`;
+    }
+  }
+  return html;
+}
+
 function renderPlaylistsList() {
   const inIds = new Set(trackPlaylists.map(p => String(p.playlist_id)));
-  if (!allPlaylists.length) {
+  if (!tree.length) {
     document.getElementById('as-playlists-list').innerHTML = '<div class="as-empty">No playlists found.</div>';
     return;
   }
-  let html = '';
-  for (const pl of allPlaylists) {
-    const checked = inIds.has(String(pl.id));
-    html += `<div class="as-row${checked ? ' checked' : ''}" onclick="togglePlaylist('${pl.id}','${esc(pl.name)}')">
-      <div class="as-row-name">${esc(pl.name)}</div>
-      <div class="as-row-check">${checked ? '✓' : ''}</div>
-    </div>`;
-  }
-  document.getElementById('as-playlists-list').innerHTML = html;
+  const collapsed = loadCollapsedFolders();
+  const html = _renderPlaylistNodes(tree, inIds, collapsed, 0);
+  document.getElementById('as-playlists-list').innerHTML = html || '<div class="as-empty">No playlists found.</div>';
 }
 
 async function togglePlaylist(playlistId, playlistName) {
@@ -1814,17 +1653,38 @@ async function togglePlaylist(playlistId, playlistName) {
   if (!t) return;
   const isIn = trackPlaylists.some(p => String(p.playlist_id) === String(playlistId));
   if (isIn) {
+    // Optimistic remove; revert on failure.
+    const removed = trackPlaylists.find(p => String(p.playlist_id) === String(playlistId));
     trackPlaylists = trackPlaylists.filter(p => String(p.playlist_id) !== String(playlistId));
     renderPlaylistsList();
     try {
-      await fetch(`/api/tracks/${t.id}/playlists/${playlistId}`, {method: 'DELETE'});
-    } catch { /* silent */ }
+      const r = await fetch(`/api/tracks/${t.id}/playlists/${playlistId}`, {method: 'DELETE'});
+      if (!r.ok) {
+        if (removed) trackPlaylists.push(removed);
+        renderPlaylistsList();
+        showToast(await _serverErr(r, 'Could not remove from playlist'));
+      }
+    } catch {
+      if (removed) trackPlaylists.push(removed);
+      renderPlaylistsList();
+      showToast('Network error — not removed');
+    }
   } else {
+    // Optimistic add; revert on failure.
     trackPlaylists.push({playlist_id: playlistId, name: playlistName});
     renderPlaylistsList();
     try {
-      await fetch(`/api/tracks/${t.id}/playlists/${playlistId}`, {method: 'POST'});
-    } catch { /* silent */ }
+      const r = await fetch(`/api/tracks/${t.id}/playlists/${playlistId}`, {method: 'POST'});
+      if (!r.ok) {
+        trackPlaylists = trackPlaylists.filter(p => String(p.playlist_id) !== String(playlistId));
+        renderPlaylistsList();
+        showToast(await _serverErr(r, 'Could not add to playlist'));
+      }
+    } catch {
+      trackPlaylists = trackPlaylists.filter(p => String(p.playlist_id) !== String(playlistId));
+      renderPlaylistsList();
+      showToast('Network error — not added');
+    }
   }
 }
 
