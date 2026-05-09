@@ -104,7 +104,7 @@ jobs:
       # (the installer hangs in /VERYSILENT mode in CI; testing the bundle
       # itself is the real concern, installer behaviour is a separate test).
       - name: Upload unpacked Windows bundle (for smoke)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: BoxCutter-bundle-windows-${{ env.VERSION }}
           path: dist/BoxCutter
@@ -243,7 +243,7 @@ jobs:
       # Unpacked .app bundle. Used by bundle-smoke jobs so smoke can run
       # the bundle directly without going through DMG mount/copy in CI.
       - name: Upload unpacked macOS .app bundle (for smoke)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: BoxCutter-bundle-macos-${{ env.VERSION }}
           path: dist/BoxCutter.app
