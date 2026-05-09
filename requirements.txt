@@ -13,6 +13,6 @@ pythonnet>=3.0.0; sys_platform == "win32"
 # pyobjc provides the Cocoa bridge pywebview uses to render the native
 # window on macOS. Pinned explicitly so PyInstaller's collect_submodules
 # and the build-time guard in release.yml can rely on these being present.
-pyobjc-core>=10.0; sys_platform == "darwin"
-pyobjc-framework-Cocoa>=10.0; sys_platform == "darwin"
-pyobjc-framework-WebKit>=10.0; sys_platform == "darwin"
+pyobjc-core>=12.1; sys_platform == "darwin"
+pyobjc-framework-Cocoa>=12.1; sys_platform == "darwin"
+pyobjc-framework-WebKit>=12.1; sys_platform == "darwin"
