@@ -665,11 +665,15 @@
       <button class="star-btn" onclick="setStar(5)">★</button>
     </div>
 
-    <div class="as-section-label">Tags</div>
-    <div id="as-tags-list"><div class="as-loading">Loading…</div></div>
+    <div class="as-tag-cat collapsed" id="as-tags-header" onclick="toggleSection('tags')">
+      <span class="chev">▼</span><span>Tags</span>
+    </div>
+    <div class="as-tag-children" id="as-tags-list"><div class="as-loading">Loading…</div></div>
 
-    <div class="as-section-label">Add to Playlist</div>
-    <div id="as-playlists-list"><div class="as-loading">Loading…</div></div>
+    <div class="as-tag-cat collapsed" id="as-playlists-header" onclick="toggleSection('playlists')">
+      <span class="chev">▼</span><span>Add to Playlist</span>
+    </div>
+    <div class="as-tag-children" id="as-playlists-list"><div class="as-loading">Loading…</div></div>
   </div>
 </div>
 
@@ -1003,6 +1007,7 @@ function playTrack(idx) {
     renderStars(trackRating);
     trackTags = [];
     trackPlaylists = [];
+    resetActionSheetCollapseState();
     document.getElementById('as-tags-list').innerHTML = '<div class="as-loading">Loading…</div>';
     document.getElementById('as-playlists-list').innerHTML = '<div class="as-loading">Loading…</div>';
     setTimeout(resizeActionSheetWaveform, 50);
@@ -1401,6 +1406,7 @@ async function openActionSheet(idx) {
   trackTags = [];
   trackPlaylists = [];
   renderStars(0);
+  resetActionSheetCollapseState();
   document.getElementById('as-tags-list').innerHTML = '<div class="as-loading">Loading…</div>';
   document.getElementById('as-playlists-list').innerHTML = '<div class="as-loading">Loading…</div>';
 
@@ -1472,20 +1478,29 @@ async function setStar(star) {
   }
 }
 
-// Tags
-const LISTEN_TAGS_COLLAPSED_KEY = 'bcListenTagsCollapsed';
-function loadCollapsedCats() {
-  try { return new Set(JSON.parse(localStorage.getItem(LISTEN_TAGS_COLLAPSED_KEY)) || []); }
-  catch { return new Set(); }
+// Tags / Playlists collapse state — in-memory, resets every time the
+// action sheet opens so everything starts collapsed by default.
+let expandedTagCats = new Set();
+let expandedPlaylistFolders = new Set();
+
+function toggleSection(name) {
+  const id = name === 'tags' ? 'as-tags-header' : 'as-playlists-header';
+  document.getElementById(id).classList.toggle('collapsed');
 }
-function saveCollapsedCats(set) {
-  try { localStorage.setItem(LISTEN_TAGS_COLLAPSED_KEY, JSON.stringify([...set])); } catch {}
+
+function resetActionSheetCollapseState() {
+  expandedTagCats.clear();
+  expandedPlaylistFolders.clear();
+  const tagsHeader = document.getElementById('as-tags-header');
+  const plHeader   = document.getElementById('as-playlists-header');
+  if (tagsHeader) tagsHeader.classList.add('collapsed');
+  if (plHeader)   plHeader.classList.add('collapsed');
 }
+
 function toggleTagCategory(catId) {
-  const collapsed = loadCollapsedCats();
-  if (collapsed.has(String(catId))) collapsed.delete(String(catId));
-  else collapsed.add(String(catId));
-  saveCollapsedCats(collapsed);
+  const key = String(catId);
+  if (expandedTagCats.has(key)) expandedTagCats.delete(key);
+  else expandedTagCats.add(key);
   const header = document.querySelector(`[data-cat-id="${catId}"]`);
   if (header) header.classList.toggle('collapsed');
 }
@@ -1521,13 +1536,12 @@ function renderTagsList() {
     </div>`;
   }
 
-  const collapsed = loadCollapsedCats();
   let html = '';
   // Render each category with its children
   for (const cat of categories.sort((a, b) => (a.seq || 0) - (b.seq || 0))) {
     const kids = byParent[String(cat.id)];
     if (!kids || !kids.length) continue;
-    const isCollapsed = collapsed.has(String(cat.id));
+    const isCollapsed = !expandedTagCats.has(String(cat.id));
     html += `<div class="as-tag-cat${isCollapsed ? ' collapsed' : ''}" data-cat-id="${esc(cat.id)}" onclick="toggleTagCategory('${esc(cat.id)}')">
       <span class="chev">▼</span><span>${esc(cat.name)}</span>
     </div>`;
@@ -1596,34 +1610,26 @@ async function toggleTag(tagId, tagName, assignmentId) {
 }
 
 // Playlists — hierarchical, mirrors the tag UX (collapsible folder groups).
-const LISTEN_PLAYLISTS_COLLAPSED_KEY = 'bcListenPlaylistsCollapsed';
-function loadCollapsedFolders() {
-  try { return new Set(JSON.parse(localStorage.getItem(LISTEN_PLAYLISTS_COLLAPSED_KEY)) || []); }
-  catch { return new Set(); }
-}
-function saveCollapsedFolders(set) {
-  try { localStorage.setItem(LISTEN_PLAYLISTS_COLLAPSED_KEY, JSON.stringify([...set])); } catch {}
-}
+// Default-collapsed; in-memory state in expandedPlaylistFolders, reset
+// on each action-sheet open by resetActionSheetCollapseState().
 function togglePlaylistFolder(folderId) {
-  const collapsed = loadCollapsedFolders();
   const key = String(folderId);
-  if (collapsed.has(key)) collapsed.delete(key);
-  else collapsed.add(key);
-  saveCollapsedFolders(collapsed);
+  if (expandedPlaylistFolders.has(key)) expandedPlaylistFolders.delete(key);
+  else expandedPlaylistFolders.add(key);
   const header = document.querySelector(`[data-pl-folder-id="${key}"]`);
   if (header) header.classList.toggle('collapsed');
 }
 
-function _renderPlaylistNodes(nodes, inIds, collapsed, depth) {
+function _renderPlaylistNodes(nodes, inIds, depth) {
   let html = '';
   for (const n of nodes) {
     if (n.type === 'folder') {
-      const isCollapsed = collapsed.has(String(n.id));
+      const isCollapsed = !expandedPlaylistFolders.has(String(n.id));
       html += `<div class="as-tag-cat${isCollapsed ? ' collapsed' : ''}" data-pl-folder-id="${esc(n.id)}" onclick="togglePlaylistFolder('${esc(n.id)}')" style="padding-left:${20 + depth * 12}px">
         <span class="chev">▼</span><span>${esc(n.name)}</span>
       </div>`;
       html += '<div class="as-tag-children">';
-      html += _renderPlaylistNodes(n.children || [], inIds, collapsed, depth + 1);
+      html += _renderPlaylistNodes(n.children || [], inIds, depth + 1);
       html += '</div>';
     } else {
       const checked = inIds.has(String(n.id));
@@ -1642,8 +1648,7 @@ function renderPlaylistsList() {
     document.getElementById('as-playlists-list').innerHTML = '<div class="as-empty">No playlists found.</div>';
     return;
   }
-  const collapsed = loadCollapsedFolders();
-  const html = _renderPlaylistNodes(tree, inIds, collapsed, 0);
+  const html = _renderPlaylistNodes(tree, inIds, 0);
   document.getElementById('as-playlists-list').innerHTML = html || '<div class="as-empty">No playlists found.</div>';
 }
 
