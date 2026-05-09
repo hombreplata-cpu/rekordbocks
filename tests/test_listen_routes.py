@@ -234,6 +234,42 @@ def test_cues_post_non_int_time_ms_returns_400(auth_client):
 
 
 # ---------------------------------------------------------------------------
+# POST/DELETE /api/tracks/<id>/playlists/<pid>  — silent-failure regression
+# guard. Mobile listen client used to swallow non-2xx responses, leaving
+# checkmarks stuck for writes that never persisted. Server must return a
+# parseable {"error": "..."} body so the client can surface a toast.
+# ---------------------------------------------------------------------------
+
+
+def test_playlist_add_unauthorized_returns_401(unauth_client):
+    resp = unauth_client.post("/api/tracks/123/playlists/456")
+    assert resp.status_code == 401
+
+
+def test_playlist_add_blocked_when_rekordbox_running_returns_parseable_error(auth_client):
+    with patch.object(flask_app, "rekordbox_is_running", return_value=True):
+        resp = auth_client.post("/api/tracks/123/playlists/456")
+    assert resp.status_code == 409
+    body = resp.get_json()
+    assert "error" in body
+    assert "Rekordbox" in body["error"]
+
+
+def test_playlist_remove_unauthorized_returns_401(unauth_client):
+    resp = unauth_client.delete("/api/tracks/123/playlists/456")
+    assert resp.status_code == 401
+
+
+def test_playlist_remove_blocked_when_rekordbox_running_returns_parseable_error(auth_client):
+    with patch.object(flask_app, "rekordbox_is_running", return_value=True):
+        resp = auth_client.delete("/api/tracks/123/playlists/456")
+    assert resp.status_code == 409
+    body = resp.get_json()
+    assert "error" in body
+    assert "Rekordbox" in body["error"]
+
+
+# ---------------------------------------------------------------------------
 # GET /api/listen/tree  — wraps get_listen_tree.py
 # ---------------------------------------------------------------------------
 
